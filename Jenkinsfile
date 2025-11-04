@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Git Pull') {
             steps {
-                git branch: 'main', url: 'https://github.com/<username>/<repo>.git'
+                git branch: 'main', url: 'https://github.com/junn34/infraPrac.git'
             }
         }
 
