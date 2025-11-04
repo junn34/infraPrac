@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Git Pull') {
-            steps {
-                git branch: 'main', url: 'https://github.com/junn34/infraPrac.git'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
                 script {
