@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/* ---------- 색상 변수 설정 ---------- */
+:root {
+  --background: #E6F3FA;   /* 은은한 하늘색 톤 배경 */
+  --foreground: #374151;   /* 짙은 회색 - 본문 글자색 */
+  --primary: #0067AC;      /* 우리은행 메인 블루 */
+  --primary-dark: #004E8A; /* 진한 블루 - 버튼 hover 등 */
+  --accent: #10B981;       /* 초록색 포인트 (금융 성공/완료 등) */
+}
+
+/* ---------- Tailwind 테마 연결 ---------- */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-accent: var(--accent);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+/* ---------- 다크모드 대응 ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0A0A0A;
+    --foreground: #EDEDED;
+  }
+}
+
+/* ---------- 전역 스타일 ---------- */
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Noto Sans KR', sans-serif;
+}
