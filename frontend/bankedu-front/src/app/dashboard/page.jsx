@@ -12,7 +12,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch('http://localhost:8080/api/auth/me', {
           credentials: 'include', // 세션 쿠키 포함 (중요!)
         });
 

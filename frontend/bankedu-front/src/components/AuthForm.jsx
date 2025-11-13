@@ -13,10 +13,13 @@ export default function AuthForm({ mode = 'login' }) {
     e.preventDefault();
     setError('');
 
+    const API_BASE = "http://localhost:8080";
+
     const apiUrl =
-  mode === 'signup'
-    ? '/api/auth/signup'
-    : '/api/auth/login';
+      mode === 'signup'
+        ? `${API_BASE}/api/auth/signup`
+        : `${API_BASE}/api/auth/login`;
+
 
     const body =
       mode === 'signup'
