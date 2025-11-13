@@ -33,10 +33,10 @@ services:
   frontend:
     build:
       context: ./frontend
-      dockerfile: Dockerfile
-    container_name: sw_team_6_frontend
+      dockerfile: Dockerfile     # next start 방식 Dockerfile
+    container_name: sw_team_6_front
     ports:
-      - "8530:80"
+      - "8530:3000"              # 중요! next start는 내부 3000 포트 사용
     depends_on:
       - backend
     networks:
