@@ -1,74 +1,51 @@
 version: "3.9"
 
 services:
-  # ----------------------------
-  # ✅ Frontend (Next.js → Nginx)
-  # ----------------------------
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: bankedu-front
+  sw_team_6_mysql:
+    image: mysql:8.0
+    container_name: sw_team_6_mysql
     ports:
-      - "3000:80"                    # 로컬 3000 → 컨테이너 80 (Nginx)
-    depends_on:
-      - backend
+      - "8506:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_DATABASE: wooriLearn
+    volumes:
+      - db_data:/var/lib/mysql
     networks:
-      - bankedu-net
+      - sw_team_6_net
 
-  # ----------------------------
-  # ✅ Backend (Spring Boot)
-  # ----------------------------
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: bankedu-back
-    restart: always
+    container_name: sw_team_6_backend
+    ports:
+      - "8580:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-bankedu:3306/bankedu_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_URL: jdbc:mysql://sw_team_6_mysql:3306/wooriLearn?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: 1234
-      TZ: Asia/Seoul
     depends_on:
-      mysql-bankedu:
-        condition: service_healthy
-    ports:
-      - "8080:8080"
+      - sw_team_6_mysql
     networks:
-      - bankedu-net
+      - sw_team_6_net
 
-  # ----------------------------
-  # ✅ MySQL (Database)
-  # ----------------------------
-  mysql-bankedu:
-    image: mysql:8.0.44
-    container_name: mysql-bankedu
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: 1234
-      MYSQL_DATABASE: bankedu_db         # ✅ 자동 생성
-      TZ: Asia/Seoul
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sw_team_6_frontend
     ports:
-      - "3306:3306"
-    volumes:
-      - db_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p1234"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
+      - "8530:80"
+    depends_on:
+      - backend
     networks:
-      - bankedu-net
-
-# ----------------------------
-# ✅ 공용 네트워크 & 볼륨
-# ----------------------------
-networks:
-  bankedu-net:
-    driver: bridge
+      - sw_team_6_net
 
 volumes:
   db_data:
+
+networks:
+  sw_team_6_net:
+    driver: bridge
 

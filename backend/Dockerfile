@@ -1,18 +1,20 @@
-# Java 17 기반 이미지
-FROM openjdk:17-jdk-slim
+# ---------- 1단계: Build ----------
+FROM gradle:8.8-jdk17 AS build
+WORKDIR /workspace
 
-# 작업 디렉토리 생성
+# 프로젝트 복사
+COPY bankedu-back /workspace
+
+# Gradle 캐시를 활용하기 위해 dependencies 먼저 다운로드
+RUN gradle clean build -x test --no-daemon
+
+# ---------- 2단계: Run ----------
+FROM openjdk:17-jdk-slim
 WORKDIR /app
 
-# bankedu-back 폴더 안의 빌드 결과물 복사
-COPY ./bankedu-back/build/libs/*.jar app.jar
+# 위에서 빌드된 jar 복사
+COPY --from=build /workspace/build/libs/*.jar app.jar
 
-ENV LANG=C.UTF-8
-ENV LC_ALL=C.UTF-8
-
-# 컨테이너 포트 오픈
 EXPOSE 8080
-
-# 실행 명령
-ENTRYPOINT ["java", "-jar", "/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
 
