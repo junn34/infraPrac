@@ -15,7 +15,6 @@ pipeline {
             }
         }
 
-        /* 🔥 먼저 .env 생성해야 빌드에서 반영됨 */
         stage('Prepare ENV') {
             steps {
                 withCredentials([
@@ -24,12 +23,15 @@ pipeline {
                     string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
                 ]) {
                     sh '''
-                    echo "===== WRITING .env BEFORE BUILD ====="
-                    cat > frontend/.env.production <<EOF
+                    echo "===== CREATE .env files ====="
+
+                    # FRONTEND .env.production
+                    cat > $WORKSPACE/frontend/.env.production <<EOF
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    cat > .env <<EOF
+                    # DOCKER-COMPOSE .env (workspace root)
+                    cat > $WORKSPACE/.env <<EOF
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
@@ -58,8 +60,8 @@ EOF
                     echo "===== BUILD FRONTEND ====="
                     cd frontend
                     docker build \
-                      --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
-                      -t sw_team_6_front:latest .
+                        --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+                        -t sw_team_6_front:latest .
                     '''
                 }
             }
