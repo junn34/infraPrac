@@ -12,9 +12,12 @@ export default function Dashboard() {
   useEffect(() => {
     async function checkAuth() {
       try {
-        const res = await fetch('http://localhost:8080/api/auth/me', {
-          credentials: 'include', // 세션 쿠키 포함 (중요!)
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
+          {
+            credentials: 'include', // 세션 쿠키 포함 (중요!)
+          }
+        );
 
         if (res.status === 200) {
           const id = await res.text();
@@ -43,9 +46,7 @@ export default function Dashboard() {
         <h1 className="text-2xl font-bold text-gray-800">
           {userId ? `환영합니다, 사용자 #${userId}` : '대시보드'}
         </h1>
-        <p className="text-gray-600 mt-2">
-          금융 학습을 시작해볼까요? 💡
-        </p>
+        <p className="text-gray-600 mt-2">금융 학습을 시작해볼까요? 💡</p>
 
         <div className="grid grid-cols-2 gap-4 mt-10">
           <button
@@ -64,7 +65,7 @@ export default function Dashboard() {
 
         <button
           onClick={() => {
-            fetch('/api/auth/logout', {
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
               method: 'POST',
               credentials: 'include',
             }).then(() => router.push('/'));
@@ -77,3 +78,4 @@ export default function Dashboard() {
     </main>
   );
 }
+

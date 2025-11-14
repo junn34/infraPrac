@@ -1,6 +1,8 @@
 HELP.md
 .gradle
 build/
+/build/
+/*/build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
@@ -35,3 +37,18 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Env & Secret Configs ###
+.env
+.env.*
+*.env
+
+#설정 파일
+#.local.properties
+#.local.yml
+#.local.yaml
+
+#스프링 config
+application.properties
+application.yml
+application.yaml

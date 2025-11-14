@@ -34,9 +34,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: sw_team_6_frontend
+    container_name: sw_team_6_front
     ports:
-      - "8530:80"
+      - "8530:3000"
     depends_on:
       - backend
     networks:
@@ -47,5 +47,5 @@ volumes:
 
 networks:
   sw_team_6_net:
-    driver: bridge
+    external: true   # ⭐ 네트워크 이름 고정하는 핵심
 

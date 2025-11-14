@@ -13,7 +13,7 @@ export default function AuthForm({ mode = 'login' }) {
     e.preventDefault();
     setError('');
 
-    const API_BASE = "http://localhost:8080";
+    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     const apiUrl =
       mode === 'signup'
