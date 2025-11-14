@@ -3,14 +3,11 @@ pipeline {
 
     environment {
         GIT_CRED = 'github_token'
-        PROJECT_DIR = '/home/sw_team_6/infraPrac'
+        PROJECT_DIR = "${WORKSPACE}"   // Jenkins workspace
     }
 
     stages {
 
-        /* ========================================
-           Git Clone
-        ======================================== */
         stage('Git Pull') {
             steps {
                 git branch: 'main',
@@ -19,9 +16,6 @@ pipeline {
             }
         }
 
-        /* ========================================
-           Create .env in actual compose directory
-        ======================================== */
         stage('Prepare ENV') {
             steps {
                 withCredentials([
@@ -30,7 +24,7 @@ pipeline {
                     string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
                 ]) {
                     sh '''
-                    echo "===== CREATE REAL .env FILES ====="
+                    echo "===== CREATE .env FILES IN WORKSPACE ====="
 
                     # Backend / docker-compose .env
                     cat > ${PROJECT_DIR}/.env <<EOF
@@ -39,20 +33,17 @@ DB_PASSWORD=${DB_PASSWORD}
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    # Frontend env
+                    # Frontend .env.production
                     cat > ${PROJECT_DIR}/frontend/.env.production <<EOF
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    echo "===== ENV FILES CREATED at ${PROJECT_DIR} ====="
+                    echo "===== .env files created under ${PROJECT_DIR} ====="
                     '''
                 }
             }
         }
 
-        /* ========================================
-           Build Backend
-        ======================================== */
         stage('Build Backend') {
             steps {
                 sh '''
@@ -63,9 +54,6 @@ EOF
             }
         }
 
-        /* ========================================
-           Build Frontend
-        ======================================== */
         stage('Build Frontend') {
             steps {
                 withCredentials([
@@ -82,18 +70,12 @@ EOF
             }
         }
 
-        /* ========================================
-           Deploy (Compose executed in real folder)
-        ======================================== */
         stage('Deploy') {
             steps {
                 sh '''
-                echo "===== STOP OLD CONTAINERS ====="
+                echo "===== DEPLOY ====="
                 cd ${PROJECT_DIR}
                 docker-compose -p sw_team_6 down || true
-
-                echo "===== START NEW CONTAINERS ====="
-                cd ${PROJECT_DIR}
                 docker-compose -p sw_team_6 up -d --build
                 '''
             }
@@ -102,10 +84,10 @@ EOF
 
     post {
         success {
-            echo "🚀 배포 성공! Backend + Frontend 컨테이너 정상 기동 완료!"
+            echo "🚀 배포 성공!"
         }
         failure {
-            echo "❌ 배포 실패. Jenkins 콘솔 로그 확인 필요!"
+            echo "❌ 배포 실패!"
         }
     }
 }
