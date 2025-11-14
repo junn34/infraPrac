@@ -23,19 +23,28 @@ pipeline {
                     string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
                 ]) {
                     sh '''
-                    echo "===== CREATE .env files ====="
+                    echo "===== PREPARE ENV FILES ====="
 
-                    # FRONTEND .env.production
+                    echo "[1] Ensure frontend folder exists"
+                    ls -al $WORKSPACE/frontend || (echo "❌ frontend folder not found" && exit 1)
+
+                    echo "[2] Writing frontend/.env.production"
                     cat > $WORKSPACE/frontend/.env.production <<EOF
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    # DOCKER-COMPOSE .env (workspace root)
+                    echo "[3] Writing workspace .env"
                     cat > $WORKSPACE/.env <<EOF
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
+
+                    echo "===== ENV FILES CREATED ====="
+                    echo "--- workspace .env ---"
+                    cat $WORKSPACE/.env
+                    echo "--- frontend/.env.production ---"
+                    cat $WORKSPACE/frontend/.env.production
                     '''
                 }
             }
@@ -45,7 +54,7 @@ EOF
             steps {
                 sh '''
                 echo "===== BUILD BACKEND ====="
-                cd backend
+                cd $WORKSPACE/backend
                 docker build -t sw_team_6_backend:latest .
                 '''
             }
@@ -58,7 +67,7 @@ EOF
                 ]) {
                     sh '''
                     echo "===== BUILD FRONTEND ====="
-                    cd frontend
+                    cd $WORKSPACE/frontend
                     docker build \
                         --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
                         -t sw_team_6_front:latest .
