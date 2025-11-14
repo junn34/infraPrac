@@ -7,10 +7,10 @@ COPY bankedu-front/package.json bankedu-front/package-lock.json ./
 RUN npm install
 
 # 프로젝트 전체 복사
-COPY bankedu-front/ .
+COPY bankedu-front/ ./
 
-# 환경변수 파일도 복사
-COPY bankedu-front/.env.production ./
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
 # Next.js 빌드
 RUN npm run build
