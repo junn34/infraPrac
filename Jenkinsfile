@@ -24,6 +24,10 @@ pipeline {
             steps {
                 sh '''
                 echo "=== FRONTEND BUILD START ==="
+
+                # 👉 프론트 환경파일 자동 생성
+                echo "NEXT_PUBLIC_API_URL=http://192.168.0.79:8580" > frontend/bankedu-front/.env.production
+
                 cd frontend
                 docker build -t sw_team_6_front:latest .
                 '''
