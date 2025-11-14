@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         GIT_CRED = 'github_token'
-        PROJECT_DIR = "${WORKSPACE}"   // Jenkins workspace
     }
 
     stages {
@@ -24,21 +23,22 @@ pipeline {
                     string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
                 ]) {
                     sh '''
-                    echo "===== CREATE .env FILES IN WORKSPACE ====="
+                    echo "===== CREATE REAL .env FILES ====="
 
-                    # Backend / docker-compose .env
-                    cat > ${PROJECT_DIR}/.env <<EOF
+                    # 👉 Jenkins workspace 기준으로 생성 (절대경로)
+                    cat > $WORKSPACE/.env <<EOF
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    # Frontend .env.production
-                    cat > ${PROJECT_DIR}/frontend/.env.production <<EOF
+                    cat > $WORKSPACE/frontend/.env.production <<EOF
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    echo "===== .env files created under ${PROJECT_DIR} ====="
+                    echo "===== .env 생성 완료 ====="
+                    ls -al $WORKSPACE
+                    ls -al $WORKSPACE/frontend
                     '''
                 }
             }
@@ -73,9 +73,10 @@ EOF
         stage('Deploy') {
             steps {
                 sh '''
-                echo "===== DEPLOY ====="
-                cd ${PROJECT_DIR}
+                echo "===== STOP OLD CONTAINERS ====="
                 docker-compose -p sw_team_6 down || true
+
+                echo "===== START NEW CONTAINERS ====="
                 docker-compose -p sw_team_6 up -d --build
                 '''
             }
@@ -84,10 +85,10 @@ EOF
 
     post {
         success {
-            echo "🚀 배포 성공!"
+            echo "🚀 배포 성공! 컨테이너 재기동 완료!"
         }
         failure {
-            echo "❌ 배포 실패!"
+            echo "❌ 배포 실패. Jenkins 콘솔 로그 확인 필요!"
         }
     }
 }
