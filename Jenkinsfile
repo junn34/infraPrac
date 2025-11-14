@@ -2,6 +2,9 @@ pipeline {
     agent any
 
     environment {
+        DB_HOST = credentials('db_host')
+        DB_USERNAME = credentials('db_username')
+        DB_PASSWORD = credentials('db_password')
         NEXT_PUBLIC_API_URL = credentials('frontend_api_url')
     }
 
@@ -38,8 +41,19 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh '''
-                docker compose down
-                docker compose up -d --build
+                echo "=== DEPLOY WITH CREDENTIALS ==="
+
+                DB_HOST=$DB_HOST \
+                DB_USERNAME=$DB_USERNAME \
+                DB_PASSWORD=$DB_PASSWORD \
+                NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+                docker-compose down
+
+                DB_HOST=$DB_HOST \
+                DB_USERNAME=$DB_USERNAME \
+                DB_PASSWORD=$DB_PASSWORD \
+                NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+                docker-compose up -d --build
                 '''
             }
         }
