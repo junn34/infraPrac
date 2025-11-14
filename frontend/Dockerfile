@@ -1,20 +1,20 @@
-# ---------- 1단계: Build ----------
+# ---------- Build ----------
 FROM node:20 AS build
 WORKDIR /app
 
-COPY bankedu-front/package.json ./package.json
-COPY bankedu-front/package-lock.json ./package-lock.json
+COPY bankedu-front/package.json ./
+COPY bankedu-front/package-lock.json ./
 
 RUN npm install
 
 COPY bankedu-front/ .
 
-ARG NEXT_PUBLIC_API_URL
-ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+# 하드코딩 API URL
+ENV NEXT_PUBLIC_API_URL=http://192.168.0.79:8580
 
 RUN npm run build
 
-# ---------- 2단계: Run ----------
+# ---------- Run ----------
 FROM node:20 AS runner
 WORKDIR /app
 
