@@ -15,6 +15,30 @@ pipeline {
             }
         }
 
+        /* 🔥 먼저 .env 생성해야 빌드에서 반영됨 */
+        stage('Prepare ENV') {
+            steps {
+                withCredentials([
+                    string(credentialsId: 'db_username',        variable: 'DB_USERNAME'),
+                    string(credentialsId: 'db_password',        variable: 'DB_PASSWORD'),
+                    string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
+                ]) {
+                    sh '''
+                    echo "===== WRITING .env BEFORE BUILD ====="
+                    cat > frontend/.env.production <<EOF
+NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+EOF
+
+                    cat > .env <<EOF
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
+NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+EOF
+                    '''
+                }
+            }
+        }
+
         stage('Build Backend') {
             steps {
                 sh '''
@@ -27,38 +51,29 @@ pipeline {
 
         stage('Build Frontend') {
             steps {
-                sh '''
-                echo "===== BUILD FRONTEND ====="
-                cd frontend
-                docker build -t sw_team_6_front:latest .
-                '''
+                withCredentials([
+                    string(credentialsId: 'frontend_api_url', variable: 'NEXT_PUBLIC_API_URL')
+                ]) {
+                    sh '''
+                    echo "===== BUILD FRONTEND ====="
+                    cd frontend
+                    docker build \
+                      --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+                      -t sw_team_6_front:latest .
+                    '''
+                }
             }
         }
 
         stage('Deploy') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'db_username',        variable: 'DB_USERNAME'),
-                    string(credentialsId: 'db_password',        variable: 'DB_PASSWORD'),
-                    string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
-                ]) {
+                sh '''
+                echo "===== STOP OLD CONTAINERS ====="
+                docker-compose -p sw_team_6 down || true
 
-                    sh '''
-                    echo "===== WRITING .env FOR DOCKER-COMPOSE ====="
-
-                    cat > .env <<EOF
-DB_USERNAME=${DB_USERNAME}
-DB_PASSWORD=${DB_PASSWORD}
-NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
-EOF
-
-                    echo "===== STOP OLD CONTAINERS ====="
-                    docker-compose -p sw_team_6 down || true
-
-                    echo "===== START NEW CONTAINERS ====="
-                    docker-compose -p sw_team_6 up -d --build
-                    '''
-                }
+                echo "===== START NEW CONTAINERS ====="
+                docker-compose -p sw_team_6 up -d --build
+                '''
             }
         }
     }
