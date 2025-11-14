@@ -2,8 +2,7 @@ pipeline {
     agent any
 
     environment {
-        // GitHub Credential
-        GIT_CRED = 'github_token'
+        GIT_CRED = 'github-token'
     }
 
     stages {
@@ -58,16 +57,16 @@ EOF
 
                     echo "===== START NEW CONTAINERS ====="
                     docker-compose -p sw_team_6 up -d --build
-OAOAOA                    '''
+                    '''
                 }
-OAOAOA            }
-OAOAOA        }
+            }
+        }
     }
-OAOAOA
+
     post {
-OAOAOA        success {
-OAOAOA            echo "🚀 배포 성공! 컨테이너 재기동 완료!"
-OAOAOA        }
+        success {
+            echo "🚀 배포 성공! 컨테이너 재기동 완료!"
+        }
         failure {
             echo "❌ 배포 실패. Jenkins 콘솔 로그 확인 필요!"
         }
