@@ -48,9 +48,7 @@ services:
       - sw_team_6_net
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
+    image: sw_team_6_front:latest
     container_name: sw_team_6_front
     ports:
       - "8530:3000"
