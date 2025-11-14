@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        GIT_CRED = 'github-token'
+        GIT_CRED = 'github_token'
     }
 
     stages {
