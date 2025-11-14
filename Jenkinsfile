@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         GIT_CRED = 'github_token'
-        WORK_DIR = "/var/jenkins_home/workspace/sw_team_6_infra"
     }
 
     stages {
@@ -23,20 +22,17 @@ pipeline {
                     string(credentialsId: 'db_password',        variable: 'DB_PASSWORD'),
                     string(credentialsId: 'frontend_api_url',   variable: 'NEXT_PUBLIC_API_URL')
                 ]) {
-
                     sh '''
                     echo "===== CREATE .env FILES ====="
 
-                    # frontend env
-                    mkdir -p ${WORK_DIR}/frontend
-                    cat > ${WORK_DIR}/frontend/.env.production <<EOF
+                    # Workspace 기준으로 생성
+                    cat > $WORKSPACE/.env <<EOF
+DB_USERNAME=${DB_USERNAME}
+DB_PASSWORD=${DB_PASSWORD}
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
 
-                    # root env
-                    cat > ${WORK_DIR}/.env <<EOF
-DB_USERNAME=${DB_USERNAME}
-DB_PASSWORD=${DB_PASSWORD}
+                    cat > $WORKSPACE/frontend/.env.production <<EOF
 NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 EOF
                     '''
@@ -47,7 +43,8 @@ EOF
         stage('Build Backend') {
             steps {
                 sh '''
-                cd backend
+                echo "===== BUILD BACKEND ====="
+                cd $WORKSPACE/backend
                 docker build -t sw_team_6_backend:latest .
                 '''
             }
@@ -55,12 +52,12 @@ EOF
 
         stage('Build Frontend') {
             steps {
-                withCredentials([
-                    string(credentialsId: 'frontend_api_url', variable: 'NEXT_PUBLIC_API_URL')
-                ]) {
+                withCredentials([string(credentialsId: 'frontend_api_url', variable: 'NEXT_PUBLIC_API_URL')]) {
                     sh '''
-                    cd frontend
-                    docker build --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
+                    echo "===== BUILD FRONTEND ====="
+                    cd $WORKSPACE/frontend
+                    docker build \
+                        --build-arg NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL} \
                         -t sw_team_6_front:latest .
                     '''
                 }
@@ -70,7 +67,8 @@ EOF
         stage('Deploy') {
             steps {
                 sh '''
-                cd ${WORK_DIR}
+                echo "===== DEPLOY ====="
+                cd $WORKSPACE
                 docker-compose -p sw_team_6 down || true
                 docker-compose -p sw_team_6 up -d --build
                 '''
@@ -83,7 +81,7 @@ EOF
             echo "🚀 배포 성공!"
         }
         failure {
-            echo "❌ 배포 실패!"
+            echo "❌ 실패: Jenkins 콘솔 로그 확인!"
         }
     }
 }
