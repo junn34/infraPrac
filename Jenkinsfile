@@ -52,7 +52,15 @@ pipeline {
                 export DB_PASSWORD=$DB_PASSWORD
                 export NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-                docker-compose down
+                echo "=== Remove existing containers ==="
+                docker rm -f sw_team_6_backend || true
+                docker rm -f sw_team_6_front || true
+                docker rm -f sw_team_6_mysql || true
+
+                echo "=== Compose Down ==="
+                docker-compose down || true
+
+                echo "=== Compose Up ==="
                 docker-compose up -d --build
                 '''
             }
