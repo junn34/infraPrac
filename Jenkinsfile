@@ -13,7 +13,7 @@ pipeline {
         stage('Git Pull') {
             steps {
                 git branch: 'main',
-                    credentialsId: 'github',
+                    credentialsId: 'github_token',
                     url: 'https://github.com/junn34/infraPrac.git'
             }
         }
@@ -22,7 +22,11 @@ pipeline {
             steps {
                 sh '''
                 cd backend
-                docker build -t sw_team_6_backend:latest .
+                docker build \
+                    --build-arg DB_HOST=$DB_HOST \
+                    --build-arg DB_USERNAME=$DB_USERNAME \
+                    --build-arg DB_PASSWORD=$DB_PASSWORD \
+                    -t sw_team_6_backend:latest .
                 '''
             }
         }
@@ -43,16 +47,12 @@ pipeline {
                 sh '''
                 echo "=== DEPLOY WITH CREDENTIALS ==="
 
-                DB_HOST=$DB_HOST \
-                DB_USERNAME=$DB_USERNAME \
-                DB_PASSWORD=$DB_PASSWORD \
-                NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
-                docker-compose down
+                export DB_HOST=$DB_HOST
+                export DB_USERNAME=$DB_USERNAME
+                export DB_PASSWORD=$DB_PASSWORD
+                export NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
-                DB_HOST=$DB_HOST \
-                DB_USERNAME=$DB_USERNAME \
-                DB_PASSWORD=$DB_PASSWORD \
-                NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL \
+                docker-compose down
                 docker-compose up -d --build
                 '''
             }
