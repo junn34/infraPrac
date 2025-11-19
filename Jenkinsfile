@@ -33,7 +33,7 @@ pipeline {
             steps {
                 sh '''
                 echo "===== MOVE TO REAL JENKINS WORKSPACE ====="
-                cd /home/sw_team_6/infraPrac/jenkins_home/workspace/sw_team_6_infra
+                cd /var/jenkins_home/workspace/sw_team_6_infra
 
                 echo "===== STOP OLD COMPOSE ====="
                 docker-compose down || true
