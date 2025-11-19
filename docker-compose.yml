@@ -7,7 +7,7 @@ services:
     ports:
       - "8506:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: wooriLearn
     volumes:
       - db_data:/var/lib/mysql
@@ -15,35 +15,29 @@ services:
       - sw_team_6_net
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: sw_team_6_backend:latest
     container_name: sw_team_6_backend
     ports:
       - "8580:8080"
     environment:
-      SERVER_PORT: 8080
       SPRING_APPLICATION_NAME: bankedu-back
+      SERVER_PORT: 8080
 
-      # JPA Properties 그대로 유지
+      # JPA
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
 
-      # CORS 설정
+      # CORS
       SPRING_WEB_CORS_ALLOWED_ORIGINS: http://192.168.0.79:8530
       SPRING_WEB_CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,OPTIONS
       SPRING_WEB_CORS_ALLOW_CREDENTIALS: "true"
 
-      # DB 관련 ENV 완전 제거 — application.properties 값만 사용하도록
-      # DB_HOST: sw_team_6_mysql
-      # DB_USERNAME: ${DB_USERNAME}
-      # DB_PASSWORD: ${DB_PASSWORD}
-      
-      # SPRING_DATASOURCE_URL: ...
-      # SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      # SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      # SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      # DB 환경 변수 (Jenkins → Compose → Spring)
+      SPRING_DATASOURCE_URL: jdbc:mysql://sw_team_6_mysql:3306/wooriLearn
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
 
     depends_on:
       - sw_team_6_mysql

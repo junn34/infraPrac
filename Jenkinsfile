@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        // Jenkins Credentials에서 username/password 불러오기
+        DB_CRED = credentials('db-credential')
+    }
+
     stages {
 
         stage('Git Pull') {
@@ -10,52 +15,37 @@ pipeline {
             }
         }
 
-        stage('Build Backend Image') {
+        stage('Build Images') {
             steps {
                 sh '''
                 echo "===== BUILD BACKEND ====="
                 cd backend
                 docker build -t sw_team_6_backend:latest .
-                '''
-            }
-        }
 
-        stage('Build Frontend Image') {
-            steps {
-                sh '''
                 echo "===== BUILD FRONTEND ====="
-                cd frontend
+                cd ../frontend
                 docker build -t sw_team_6_front:latest .
                 '''
             }
         }
 
-        stage('Deploy Containers') {
+        stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                echo "===== REMOVE OLD CONTAINERS ====="
-                docker stop sw_team_6_backend || true
-                docker rm sw_team_6_backend || true
+                echo "===== STOP CURRENT COMPOSE ====="
+                docker compose down || true
 
-                docker stop sw_team_6_front || true
-                docker rm sw_team_6_front || true
+                echo "===== START NEW COMPOSE ====="
+                DB_USERNAME=${DB_CRED_USR} \
+                DB_PASSWORD=${DB_CRED_PSW} \
+                docker compose up -d --build
 
-                echo "===== RUN NEW BACKEND ====="
-                docker run -d \
-                  --name sw_team_6_backend \
-                  -p 8580:8080 \
-                  --network sw_team_6_net \
-                  sw_team_6_backend:latest
-
-                echo "===== RUN NEW FRONTEND ====="
-                docker run -d \
-                  --name sw_team_6_front \
-                  -p 8530:3000 \
-                  --network sw_team_6_net \
-                  sw_team_6_front:latest
+                echo "===== DEPLOY COMPLETED ====="
                 '''
             }
         }
     }
 }
+
+
 
