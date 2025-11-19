@@ -8,12 +8,13 @@ export default function Dashboard() {
   const [userId, setUserId] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ 페이지 로드 시 로그인 상태 확인
+  //  페이지 로드 시 로그인 상태 확인
+  const API_BASE = "http://192.168.0.79:8580";
   useEffect(() => {
     async function checkAuth() {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/auth/me`,
+          `${API_BASE}}/api/auth/me`,
           {
             credentials: 'include', // 세션 쿠키 포함 (중요!)
           }

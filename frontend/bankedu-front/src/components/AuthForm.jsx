@@ -8,12 +8,11 @@ export default function AuthForm({ mode = 'login' }) {
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-
+  const API_BASE = "http://192.168.0.79:8580";
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
 
-    const API_BASE = process.env.NEXT_PUBLIC_API_URL;
 
     const apiUrl =
       mode === 'signup'

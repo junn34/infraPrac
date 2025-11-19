@@ -49,6 +49,6 @@ out/
 #.local.yaml
 
 #스프링 config
-application.properties
+#application.properties
 application.yml
 application.yaml

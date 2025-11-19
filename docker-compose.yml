@@ -25,22 +25,25 @@ services:
       SERVER_PORT: 8080
       SPRING_APPLICATION_NAME: bankedu-back
 
+      # JPA Properties 그대로 유지
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
       SPRING_JPA_SHOW_SQL: "true"
       SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
 
+      # CORS 설정
       SPRING_WEB_CORS_ALLOWED_ORIGINS: http://192.168.0.79:8530
       SPRING_WEB_CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,OPTIONS
       SPRING_WEB_CORS_ALLOW_CREDENTIALS: "true"
 
-      DB_HOST: sw_team_6_mysql
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
-
-      SPRING_DATASOURCE_URL: jdbc:mysql://sw_team_6_mysql:3306/wooriLearn?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
-      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
-      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
+      # DB 관련 ENV 완전 제거 — application.properties 값만 사용하도록
+      # DB_HOST: sw_team_6_mysql
+      # DB_USERNAME: ${DB_USERNAME}
+      # DB_PASSWORD: ${DB_PASSWORD}
+      
+      # SPRING_DATASOURCE_URL: ...
+      # SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      # SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+      # SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
 
     depends_on:
       - sw_team_6_mysql
@@ -53,7 +56,7 @@ services:
     ports:
       - "8530:3000"
     environment:
-      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_API_URL: "http://192.168.0.79:8580"
     depends_on:
       - backend
     networks:
