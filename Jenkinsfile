@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Jenkins Credentials (MySQL root 계정)
         DB_CRED = credentials('db-credential')
     }
 
@@ -10,7 +9,6 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                // Jenkins workspace 로 체크아웃됨
                 git branch: 'main',
                     credentialsId: 'github_token',
                     url: 'https://github.com/junn34/infraPrac.git'
@@ -34,10 +32,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                echo "===== Move to Jenkins Workspace ====="
-                cd /var/jenkins_home/workspace/sw_team_6_infra
+                echo "===== MOVE TO REAL JENKINS WORKSPACE ====="
+                cd /home/sw_team_6/infraPrac/jenkins_home/workspace/sw_team_6_infra
 
-                echo "===== STOP & REMOVE OLD DOCKER COMPOSE ====="
+                echo "===== STOP OLD COMPOSE ====="
                 docker-compose down || true
 
                 echo "===== REMOVE OLD DOCKER RUN CONTAINERS ====="
@@ -45,12 +43,12 @@ pipeline {
                 docker rm -f sw_team_6_front || true
                 docker rm -f sw_team_6_mysql || true
 
-                echo "===== START NEW DOCKER COMPOSE ====="
+                echo "===== START NEW COMPOSE WITH JENKINS CREDS ====="
                 DB_USERNAME=${DB_CRED_USR} \
                 DB_PASSWORD=${DB_CRED_PSW} \
                 docker-compose up -d --build
 
-                echo "===== DEPLOY FINISHED ====="
+                echo "===== DEPLOY COMPLETED ====="
                 '''
             }
         }
