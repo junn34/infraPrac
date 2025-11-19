@@ -38,7 +38,7 @@ pipeline {
                 echo "===== START NEW COMPOSE ====="
                 DB_USERNAME=${DB_CRED_USR} \
                 DB_PASSWORD=${DB_CRED_PSW} \
-                docker compose up -d --build
+                docker-compose up -d --build
 
                 echo "===== DEPLOY COMPLETED ====="
                 '''
