@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        // Jenkins Credentials에서 username/password 불러오기
         DB_CRED = credentials('db-credential')
     }
 
@@ -32,8 +31,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
+                echo "===== MOVE TO JENKINS WORKSPACE PROJECT FOLDER ====="
+                cd /home/sw_team_6/infraPrac/jenkins_home/workspace/sw_team_6_infra
+
                 echo "===== FORCE REMOVE OLD DOCKER RUN CONTAINERS ====="
-                # 예전에 docker run으로 띄운 old 컨테이너 제거
                 docker stop sw_team_6_backend || true
                 docker rm sw_team_6_backend || true
 
@@ -43,10 +44,10 @@ pipeline {
                 docker stop sw_team_6_mysql || true
                 docker rm sw_team_6_mysql || true
 
-                echo "===== STOP CURRENT COMPOSE (IF EXIST) ====="
+                echo "===== STOP CURRENT COMPOSE ====="
                 docker-compose down || true
 
-                echo "===== START NEW COMPOSE WITH JENKINS CREDENTIALS ====="
+                echo "===== START NEW COMPOSE ====="
                 DB_USERNAME=${DB_CRED_USR} \
                 DB_PASSWORD=${DB_CRED_PSW} \
                 docker-compose up -d --build
