@@ -32,6 +32,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
+                echo "===== FORCE REMOVE MYSQL TO AVOID CONFLICT ====="
+                docker stop sw_team_6_mysql || true
+                docker rm sw_team_6_mysql || true
+
                 echo "===== STOP CURRENT COMPOSE ====="
                 docker-compose down || true
 
@@ -46,6 +50,4 @@ pipeline {
         }
     }
 }
-
-
 
