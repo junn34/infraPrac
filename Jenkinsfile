@@ -33,7 +33,7 @@ pipeline {
             steps {
                 sh '''
                 echo "===== STOP CURRENT COMPOSE ====="
-                docker compose down || true
+                docker-compose down || true
 
                 echo "===== START NEW COMPOSE ====="
                 DB_USERNAME=${DB_CRED_USR} \
