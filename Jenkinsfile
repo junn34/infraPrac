@@ -31,10 +31,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                echo "===== MOVE TO JENKINS WORKSPACE PROJECT FOLDER ====="
-                cd /home/sw_team_6/infraPrac/jenkins_home/workspace/sw_team_6_infra
+                echo "===== CD INTO JENKINS WORKSPACE ====="
+                cd /var/jenkins_home/workspace/sw_team_6_infra
 
-                echo "===== FORCE REMOVE OLD DOCKER RUN CONTAINERS ====="
+                echo "===== REMOVE OLD docker run 컨테이너 ====="
                 docker stop sw_team_6_backend || true
                 docker rm sw_team_6_backend || true
 
