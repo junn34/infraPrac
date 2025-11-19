@@ -14,7 +14,7 @@ export default function Dashboard() {
     async function checkAuth() {
       try {
         const res = await fetch(
-          `${API_BASE}}/api/auth/me`,
+          `${API_BASE}/api/auth/me`,
           {
             credentials: 'include', // 세션 쿠키 포함 (중요!)
           }
