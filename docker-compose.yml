@@ -13,6 +13,11 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - sw_team_6_net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
 
   backend:
     image: sw_team_6_backend:latest
@@ -20,27 +25,12 @@ services:
     ports:
       - "8580:8080"
     environment:
-      SPRING_APPLICATION_NAME: bankedu-back
-      SERVER_PORT: 8080
-
-      # JPA
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL: "true"
-
-      # CORS
-      SPRING_WEB_CORS_ALLOWED_ORIGINS: http://192.168.0.79:8530
-      SPRING_WEB_CORS_ALLOWED_METHODS: GET,POST,PUT,DELETE,OPTIONS
-      SPRING_WEB_CORS_ALLOW_CREDENTIALS: "true"
-
-      # DB 환경 변수 (Jenkins → Compose → Spring)
       SPRING_DATASOURCE_URL: jdbc:mysql://sw_team_6_mysql:3306/wooriLearn
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.cj.jdbc.Driver
-
     depends_on:
-      - sw_team_6_mysql
+      sw_team_6_mysql:
+        condition: service_healthy
     networks:
       - sw_team_6_net
 
@@ -61,5 +51,4 @@ volumes:
 
 networks:
   sw_team_6_net:
-    external: true
 
