@@ -18,13 +18,16 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 sh '''
-                echo "===== BUILD BACKEND ====="
-                cd backend
-                docker build -t sw_team_6_backend:latest .
+                echo "===== CLEAN BACKEND BUILD CACHE ====="
+                rm -rf backend/bankedu-back/build || true
 
-                echo "===== BUILD FRONTEND ====="
+                echo "===== BUILD BACKEND (NO CACHE) ====="
+                cd backend
+                docker build --no-cache -t sw_team_6_backend:latest .
+
+                echo "===== BUILD FRONTEND (NO CACHE) ====="
                 cd ../frontend
-                docker build -t sw_team_6_front:latest .
+                docker build --no-cache -t sw_team_6_front:latest .
                 '''
             }
         }
@@ -32,21 +35,21 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                echo "===== MOVE TO REAL JENKINS WORKSPACE ====="
-                cd /var/jenkins_home/workspace/sw_team_6_infra
-
                 echo "===== STOP OLD COMPOSE ====="
                 docker-compose down || true
 
-                echo "===== REMOVE OLD DOCKER RUN CONTAINERS ====="
+                echo "===== REMOVE OLD DOCKER CONTAINERS ====="
                 docker rm -f sw_team_6_backend || true
                 docker rm -f sw_team_6_front || true
                 docker rm -f sw_team_6_mysql || true
 
-                echo "===== START NEW COMPOSE WITH JENKINS CREDS ====="
+                echo "===== START NEW COMPOSE WITH CREDS ====="
                 DB_USERNAME=${DB_CRED_USR} \
                 DB_PASSWORD=${DB_CRED_PSW} \
                 docker-compose up -d --build
+
+                echo "===== BACKEND LOGS (DEBUG) ====="
+                docker logs sw_team_6_backend || true
 
                 echo "===== DEPLOY COMPLETED ====="
                 '''
